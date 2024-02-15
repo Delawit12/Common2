@@ -1,5 +1,5 @@
 import userService from "../services/user.services.js";
-import userUtility from "../utility/user.utility.js";
+import userUtility from "../utilities/user.utility.js";
 import bcrypt from "bcrypt"; // Import bcrypt correctly
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -8,18 +8,25 @@ dotenv.config();
 const userController = {
   // Register a new user
   registerUser: async (req, res) => {
-    const { userEmail, userPassword, userPhone } = req.body;
+    const {
+      userEmail,
+      userPassword,
+      userPhone,
+      firstName,
+      middleName,
+      lastName,
+      companyRoleId,
+    } = req.body;
 
     // Check all fields
-    if (!userEmail || !userPassword || !userPhone) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
-
-    // Check all fields
-    if (!userEmail || !userPassword || !userPhone) {
+    if (
+      !userEmail ||
+      !userPassword ||
+      !userPhone ||
+      !firstName ||
+      !lastName ||
+      !companyRoleId
+    ) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -31,19 +38,18 @@ const userController = {
 
     // If there is an account related to this email
     if (isEmailExist.length) {
-      console.log(isEmailExist);
-      return res.status(500).json({
+      return res.status(400).json({
         success: false,
         message: "Email is already used",
       });
     }
 
     // Check if the phone number is related to an account
-    const isPhoneExists = await userService.getUserByPhone(userPhone);
+    const isPhoneExist = await userService.getUserByPhone(userPhone);
 
     // If there is an account related to this phone
-    if (isPhoneExists.length) {
-      return res.status(500).json({
+    if (isPhoneExist.length) {
+      return res.status(400).json({
         success: false,
         message: "Phone is already used",
       });
@@ -83,7 +89,7 @@ const userController = {
     const { userEmail, OTP } = req.body;
     // Validate the request values
     if (!userEmail || !OTP) {
-      return res.json({
+      return res.status(400).json({
         success: false,
         message: "All fields are required",
       });
@@ -113,61 +119,7 @@ const userController = {
       }
     }
   },
-  // Login
-  loginUser: async (req, res) => {
-    const { userEmail, userPassword } = req.body;
-    //console.log(req.body);
-    // Check if all fields are given
-    if (!userEmail || !userPassword) {
-      return res.json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
 
-    // Check if the email is given
-    const isUserExist = await userService.getUserByEmail(userEmail);
-
-    // If there is no account related to this email
-    if (!isUserExist.length) {
-      return res.status(500).json({
-        success: false,
-        message: "No account exists with this email",
-      });
-    }
-    // console.log(isUserExist)
-
-    const userId = isUserExist[0].userId;
-    const checkedUserPassword = await userService.getUserPasswordByUserId(
-      userId
-    );
-
-    if (!checkedUserPassword) {
-      return res.status(500).json({
-        success: false,
-        message: "Password does not exist",
-      });
-    }
-
-    const dbPassword = checkedUserPassword[0].userPassword;
-    const isMatch = bcrypt.compareSync(userPassword, dbPassword);
-
-    if (!isMatch) {
-      return res.status(500).json({
-        success: false,
-        message: "Incorrect password",
-      });
-    } else {
-      const token = jwt.sign({ userId, userEmail }, process.env.JWT_SECRET);
-      return res.status(200).json({
-        token,
-        userId,
-        userEmail,
-        success: true,
-        message: "Login successfully",
-      });
-    }
-  },
   // Forget password
   forgetPassword: async (req, res) => {
     const { userEmail } = req.body;
@@ -181,11 +133,11 @@ const userController = {
     }
 
     // Check if the email exists
-    const isUserExists = await userService.getUserByEmail(userEmail);
+    const isUserExist = await userService.getUserByEmail(userEmail);
 
     // If there is no account related to this email
-    if (!isUserExists.length) {
-      return res.status(500).json({
+    if (!isUserExist.length) {
+      return res.status(400).json({
         success: false,
         message: "There is no account related to this email",
       });
@@ -200,7 +152,7 @@ const userController = {
         const isnewOTPAdded = await userService.newOTP(req.body);
         console.log(isnewOTPAdded);
         if (!isnewOTPAdded) {
-          return res.status(200).json({
+          return res.status(400).json({
             success: false,
             message: "Error during sending email",
           });
