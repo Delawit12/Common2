@@ -39,6 +39,9 @@ const userController = {
     // If there is an account related to this email
     if (isEmailExist.length) {
       return res.status(400).json({
+    if (isEmailExist.length> 0) {
+      console.log(isEmailExist);
+      return res.status(500).json({
         success: false,
         message: "Email is already used",
       });
@@ -75,7 +78,7 @@ const userController = {
       userUtility.sendEmail(userEmail, OTP).then(async () => {
         // Inserting password into the database
         const isPaswordAdded = await userService.addUserPassword(req.body);
-        if (isPaswordAdded) {
+        if (isPasswordAdded) {
           res.status(200).json({
             success: true,
             message: "User created successfully",
@@ -96,7 +99,11 @@ const userController = {
     }
 
     // Check if the email exists
-    const getOTP = await userService.getUserOTPByEmail(req.body);
+    const getUserByEmail = await userService.getUserByEmail(req.body);
+    const userId= getUserByEmail[0].userId;
+
+
+    const getOTP = await userService.getUserOTPByuser(req.body);
     if (!getOTP.length) {
       return res.status(500).json({
         success: false,
@@ -143,7 +150,7 @@ const userController = {
       });
     } else {
       // Extract userId
-      req.body.userId = isUserExists[0].userId;
+      req.body.userId = isUserExist[0].userId;
       // Generate OTP
       const OTP = await userUtility.generateDigitOTP();
       req.body.OTP = OTP;
