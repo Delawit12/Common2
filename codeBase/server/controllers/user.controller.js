@@ -13,7 +13,6 @@ const userController = {
       userPassword,
       userPhone,
       firstName,
-      middleName,
       lastName,
       companyRoleId,
     } = req.body;
@@ -38,7 +37,7 @@ const userController = {
 
     // If there is an account related to this email
 
-    if (isEmailExist.length> 0) {
+    if (isEmailExist.length > 0) {
       console.log(isEmailExist);
       return res.status(400).json({
         success: false,
@@ -79,10 +78,12 @@ const userController = {
       // Insert user password into the user password table
       const isPasswordAdded = await userService.addUserPassword(req.body);
 
-      if (isPasswordAdded) {
-        // Insert contact verification data into the contact verification table
-        await userService.insertContactVerification(userId, userPhone);
-
+      // Insert contact verification data into the contact verification table
+      await userService.insertContactVerification({
+        userId: req.body.userId,
+        emailStatus: 0,
+        phoneStatus: 0,
+      });
 
       // Send OTP by email
       userUtility.sendEmail(userEmail, OTP).then(async () => {
@@ -110,8 +111,7 @@ const userController = {
 
     // Check if the email exists
     const getUserByEmail = await userService.getUserByEmail(req.body);
-    const userId= getUserByEmail[0].userId;
-
+    const userId = getUserByEmail[0].userId;
 
     const getOTP = await userService.getUserOTPByuser(req.body);
     if (!getOTP.length) {
@@ -280,31 +280,6 @@ const userController = {
       success: true,
       message: "Password changed successfully",
     });
-  },
-
-  //getAllUsers
-  getAllUsers: async (req, res) => {
-    const response = await userService.getAllUsers();
-    res.status(200).json({
-      status: true,
-      data: response,
-    });
-  },
-
-  //getUserProfile)
-  getUserProfile: async (req, res) => {
-    const response = await userService.getlUserProfile();
-    if (response.length) {
-      res.status(200).json({
-        status: true,
-        data: response,
-      });
-    } else {
-      res.status(500).json({
-        status: false,
-        message: "no user found",
-      });
-    }
   },
 };
 
