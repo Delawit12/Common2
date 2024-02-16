@@ -113,27 +113,49 @@ const userController = {
     const getUserByEmail = await userService.getUserByEmail(req.body);
     const userId = getUserByEmail[0].userId;
 
-    const getOTP = await userService.getUserOTPByuser(req.body);
+    const getOTP = await userService.getUserOTPByuserId(userId);
+
     if (!getOTP.length) {
       return res.status(500).json({
         success: false,
         message: "OTP does not match",
       });
     } else {
-      const data = {
-        activeStatus: 2,
-        userEmail: userEmail,
-      };
+      const storedOTP = getOTP[0].OTP;
+      if (OTP === storedOTP) {
+        // Correct OTP, perform any necessary actions
+        // Update user's OTP to null
+        const updatedOTP = await userService.updateUserOTPToNull(userId);
 
-      // Update the active status of the user
-      const activated = await userService.updateActiveStatus(data);
-      console.log(activated);
-      if (activated) {
-        return res.json({
-          success: true,
-          message: "OTP successfully confirmed",
+        if (!updatedOTP) {
+          return res.status(500).json({
+            success: false,
+            message: "Error updating user's OTP",
+          });
+        }
+
+        // Update contact verification table column emailStatus to 1
+        const updatedEmailStatus =
+          await userService.updateContactVerificationEmailStatus(userId);
+
+        if (!updatedEmailStatus) {
+          return res.status(500).json({
+            success: false,
+            message:
+              "Error updating email status in contact verification table",
+          });
+        }
+      } else {
+        return res.status(500).json({
+          success: false,
+          message: "OTP does not match",
         });
       }
+
+      return res.json({
+        success: true,
+        message: "OTP successfully confirmed",
+      });
     }
   },
 
@@ -167,9 +189,9 @@ const userController = {
       // console.log(req.body.OTP)
       userUtility.sendEmail(userEmail, OTP).then(async () => {
         const isnewOTPAdded = await userService.newOTP(req.body);
-        console.log(isnewOTPAdded);
+        //console.log(isnewOTPAdded);
         if (!isnewOTPAdded) {
-          return res.status(400).json({
+          return res.status(500).json({
             success: false,
             message: "Error during sending email",
           });
@@ -257,6 +279,7 @@ const userController = {
 
     for (let i = 0; i < userData.length; i++) {
       let dbPassword = userData[i].userPassword;
+      //compare
       const isMatch = bcrypt.compareSync(userPassword, dbPassword);
       if (isMatch) {
         return res.status(500).json({
