@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS companyRoles (
 
 -- Create Users Table
 CREATE TABLE IF NOT EXISTS users (
-    userId INT PRIMARY KEY AUTO_INCREMENT, userEmail VARCHAR(255) NOT NULL, userPhone VARCHAR(255), createdDate DATETIME, OTP VARCHAR(255), activeStatus INT
+    userId INT PRIMARY KEY AUTO_INCREMENT, userEmail VARCHAR(255) NOT NULL, firstName VARCHAR(255) NOT NULL, middleName VARCHAR(255) NOT NULL, lastName VARCHAR(255) NOT NULL, userPhone VARCHAR(255), createdDate DATETIME, OTP VARCHAR(255), activeStatus INT
 );
 
 -- Create UsersRole Table
