@@ -8,25 +8,10 @@ dotenv.config();
 const userController = {
   // Register a new user
   registerUser: async (req, res) => {
-    const {
-      userEmail,
-      userPassword,
-      userPhone,
-      firstName,
-      middleName,
-      lastName,
-      companyRoleId,
-    } = req.body;
+    const {userEmail, userPassword, userPhone, firstName, middleName, lastName, companyRoleId} = req.body;
 
     // Check all fields
-    if (
-      !userEmail ||
-      !userPassword ||
-      !userPhone ||
-      !firstName ||
-      !lastName ||
-      !companyRoleId
-    ) {
+    if (!userEmail ||!userPassword ||!userPhone ||!firstName ||!lastName ||!companyRoleId ) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
