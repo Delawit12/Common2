@@ -73,6 +73,17 @@ const userController = {
       userId = registerUser.insertId;
       req.body.userId = userId;
 
+      // Insert user role into the user role table
+      await userService.insertUserRole(userId, companyRoleId);
+
+      // Insert user password into the user password table
+      const isPasswordAdded = await userService.addUserPassword(req.body);
+
+      if (isPasswordAdded) {
+        // Insert contact verification data into the contact verification table
+        await userService.insertContactVerification(userId, userPhone);
+
+
       // Send OTP by email
       userUtility.sendEmail(userEmail, OTP).then(async () => {
         // Inserting password into the database
