@@ -1,4 +1,4 @@
-import userService from "../services/user.services.js";
+import userService from "../services/user.service.js";
 import userUtility from "../utilities/user.utility.js";
 import bcrypt from "bcrypt"; // Import bcrypt correctly
 import jwt from "jsonwebtoken";
@@ -8,10 +8,25 @@ dotenv.config();
 const userController = {
   // Register a new user
   registerUser: async (req, res) => {
-    const {userEmail, userPassword, userPhone, firstName, middleName, lastName, companyRoleId} = req.body;
+    const {
+      userEmail,
+      userPassword,
+      userPhone,
+      firstName,
+      middleName,
+      lastName,
+      companyRoleId,
+    } = req.body;
 
     // Check all fields
-    if (!userEmail ||!userPassword ||!userPhone ||!firstName ||!lastName ||!companyRoleId ) {
+    if (
+      !userEmail ||
+      !userPassword ||
+      !userPhone ||
+      !firstName ||
+      !lastName ||
+      !companyRoleId
+    ) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
