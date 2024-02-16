@@ -52,20 +52,20 @@ const userController = {
       const OTP = userUtility.generateDigitOTP();
       req.body.OTP = OTP;
 
-      const registerUser = await userService.registerUser(req.body);
+      const isUserDataInserted = await userService.insertIntoUser(req.body);
 
       // Extract userId from the result
       userId = registerUser.insertId;
       req.body.userId = userId;
 
       // Insert user role into the user role table
-      await userService.insertUserRole(userId, companyRoleId);
+      await userService.insertIntoUserRole(userId, companyRoleId);
 
       // Insert user password into the user password table
-      const isPasswordAdded = await userService.addUserPassword(req.body);
+      const isPasswordAdded = await userService.insertIntoUserPassword(req.body);
 
       // Insert contact verification data into the contact verification table
-      await userService.insertContactVerification({
+      await userService.insertIntoContactVerification({
         userId: req.body.userId,
         emailStatus: 0,
         phoneStatus: 0,
@@ -74,7 +74,7 @@ const userController = {
       // Send OTP by email
       userUtility.sendEmail(userEmail, OTP).then(async () => {
         // Inserting password into the database
-        const isPaswordAdded = await userService.addUserPassword(req.body);
+        const isPasswordAdded = await userService.insertIntoUserPassword(req.body);
         if (isPasswordAdded) {
           res.status(200).json({
             success: true,
@@ -99,7 +99,7 @@ const userController = {
     const getUserByEmail = await userService.getUserByEmail(req.body);
     const userId = getUserByEmail[0].userId;
 
-    const getOTP = await userService.getUserOTPByuserId(userId);
+    const getOTP = await userService.getUserOTPByUserId(userId);
 
     if (!getOTP.length) {
       return res.status(500).json({
@@ -111,7 +111,7 @@ const userController = {
       if (OTP === storedOTP) {
         // Correct OTP, perform any necessary actions
         // Update user's OTP to null
-        const updatedOTP = await userService.updateUserOTPToNull(userId);
+        const updatedOTP = await userService.updateOTP(userId);
 
         if (!updatedOTP) {
           return res.status(500).json({
@@ -217,7 +217,7 @@ const userController = {
     // Password encryption
     const salt = bcrypt.genSaltSync(10); // Specify the number of rounds
     req.body.userPassword = bcrypt.hashSync(userPassword, salt);
-    const passwordInserted = await userService.changeUserPassword(req.body);
+    const passwordInserted = await userService.insertUserPassword(req.body);
 
     if (!passwordInserted) {
       return res.status(200).json({
@@ -278,8 +278,8 @@ const userController = {
     const salt = bcrypt.genSaltSync(10); // Specify the number of rounds
     req.body.userPassword = bcrypt.hashSync(userPassword, salt);
 
-    const insertNewPassword = await userService.addUserPassword(req.body);
-    if (!insertNewPassword) {
+    const updateUserPassword = await userService.updateUserPassword(req.body);
+    if (!updateUserPassword) {
       return res.status(500).json({
         success: false,
         message: "Database error during password changing",
