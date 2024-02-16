@@ -30,7 +30,7 @@ const userController = {
     const isEmailExist = await userService.getUserByEmail(userEmail);
 
     // If there is an account related to this email
-    if (isEmailExist.length) {
+    if (isEmailExist.length> 0) {
       console.log(isEmailExist);
       return res.status(500).json({
         success: false,
@@ -42,7 +42,7 @@ const userController = {
     const isPhoneExists = await userService.getUserByPhone(userPhone);
 
     // If there is an account related to this phone
-    if (isPhoneExists.length) {
+    if (isPhoneExists.length> 0) {
       return res.status(500).json({
         success: false,
         message: "Phone is already used",
@@ -69,7 +69,7 @@ const userController = {
       userUtility.sendEmail(userEmail, OTP).then(async () => {
         // Inserting password into the database
         const isPaswordAdded = await userService.addUserPassword(req.body);
-        if (isPaswordAdded) {
+        if (isPasswordAdded) {
           res.status(200).json({
             success: true,
             message: "User created successfully",
@@ -90,7 +90,11 @@ const userController = {
     }
 
     // Check if the email exists
-    const getOTP = await userService.getUserOTPByEmail(req.body);
+    const getUserByEmail = await userService.getUserByEmail(req.body);
+    const userId= getUserByEmail[0].userId;
+
+
+    const getOTP = await userService.getUserOTPByuser(req.body);
     if (!getOTP.length) {
       return res.status(500).json({
         success: false,
@@ -181,17 +185,17 @@ const userController = {
     }
 
     // Check if the email exists
-    const isUserExists = await userService.getUserByEmail(userEmail);
+    const isUserExist = await userService.getUserByEmail(userEmail);
 
     // If there is no account related to this email
-    if (!isUserExists.length) {
+    if (!isUserExist.length) {
       return res.status(500).json({
         success: false,
         message: "There is no account related to this email",
       });
     } else {
       // Extract userId
-      req.body.userId = isUserExists[0].userId;
+      req.body.userId = isUserExist[0].userId;
       // Generate OTP
       const OTP = await userUtility.generateDigitOTP();
       req.body.OTP = OTP;
@@ -200,7 +204,7 @@ const userController = {
         const isnewOTPAdded = await userService.newOTP(req.body);
         console.log(isnewOTPAdded);
         if (!isnewOTPAdded) {
-          return res.status(200).json({
+          return res.status(400).json({
             success: false,
             message: "Error during sending email",
           });
