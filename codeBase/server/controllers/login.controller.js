@@ -1,4 +1,4 @@
-import loginService from "../services/login.services.js";
+import loginService from "../services/login.service.js";
 import jwt from "jsonwebtoken";
 
 const loginController = {

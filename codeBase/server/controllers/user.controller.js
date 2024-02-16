@@ -24,6 +24,7 @@ const userController = {
       !userPassword ||
       !userPhone ||
       !firstName ||
+      !middleName ||
       !lastName ||
       !companyRoleId
     ) {
@@ -89,7 +90,7 @@ const userController = {
       // Send OTP by email
       userUtility.sendEmail(userEmail, OTP).then(async () => {
         // Inserting password into the database
-        const isPaswordAdded = await userService.addUserPassword(req.body);
+        const isPasswordAdded = await userService.addUserPassword(req.body);
         if (isPasswordAdded) {
           res.status(200).json({
             success: true,

@@ -1,3 +1,6 @@
+-- Active: 1708107622480@@127.0.0.1@3306@hulucommon
+CREATE DATABASE huluCommon;
+
 -- Create CompaniesRole Table
 CREATE TABLE IF NOT EXISTS companyRoles (
     companyRoleId INT PRIMARY KEY AUTO_INCREMENT, companyRoleName VARCHAR(255) NOT NULL
@@ -10,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Create UsersRole Table
 CREATE TABLE IF NOT EXISTS usersRole (
-    userRoleId INT PRIMARY KEY AUTO_INCREMENT, userId INT, companyRoleId INT, FOREIGN KEY (userId) REFERENCES users (userId), FOREIGN KEY (companyRoleId) REFERENCES companiesRole (companyRoleId)
+    userRoleId INT PRIMARY KEY AUTO_INCREMENT, userId INT, companyRoleId INT, FOREIGN KEY (userId) REFERENCES users (userId), FOREIGN KEY (companyRoleId) REFERENCES companyRoles (companyRoleId)
 );
 
 -- Create UsersPassword Table

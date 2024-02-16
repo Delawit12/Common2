@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 dotenv.config();
-import multerConfig from "./config/multer.js";
+//import multerConfig from "./config/multer.js";
 
 import fs from "fs/promises";
 import sharp from "sharp";
@@ -46,7 +46,7 @@ server.use(cors(corsOptions));
 // Middleware for parsing JSON and URL-encoded data
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
-server.use(multerConfig.any());
+//server.use(multerConfig.any());
 server.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Define your routes
@@ -62,5 +62,5 @@ server.get("/test", (req, res) => {
 });
 
 server.listen(port, host, () => {
-  console.log("Server is running at http://${host}:${port}");
+  console.log(`Server is running at http://${host}:${port}`);
 });

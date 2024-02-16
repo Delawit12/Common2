@@ -1,5 +1,5 @@
 import query from "../config/db.js";
-import loginQuery from "../query/login.query.js";
+import loginQuery from "../queries/login.query.js";
 
 const loginService = {
   getUserByEmail: async (data) => {
