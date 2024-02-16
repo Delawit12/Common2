@@ -37,11 +37,10 @@ const userController = {
     const isEmailExist = await userService.getUserByEmail(userEmail);
 
     // If there is an account related to this email
-    if (isEmailExist.length) {
-      return res.status(400).json({
+
     if (isEmailExist.length> 0) {
       console.log(isEmailExist);
-      return res.status(500).json({
+      return res.status(400).json({
         success: false,
         message: "Email is already used",
       });
