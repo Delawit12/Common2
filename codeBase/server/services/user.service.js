@@ -3,7 +3,7 @@ import query from "../config/db.js";
 import userQuery from "../queries/user.query.js";
 
 const userService = {
-  insertIntoUser: async (data) => {
+  insertIntoUsers: async (data) => {
     try {
       // console.log(data);
 
@@ -43,11 +43,11 @@ const userService = {
       return null;
     }
   },
-  insertIntoUserRole: async (data) => {
+  insertIntoUsersRole: async (data) => {
     try {
       // console.log(data);
 
-      const rows = await query(userQuery.insertIntoUserRole, [
+      const rows = await query(userQuery.insertIntoUsersRole, [
         data.userId,
         data.companyRoleId,
       ]);
@@ -57,11 +57,11 @@ const userService = {
       return null;
     }
   },
-  insertIntoUserPassword: (data) => {
+  insertIntoUsersPassword: (data) => {
     // Add the return statement
     try {
       // console.log(data);
-      const rows = query(usersQuery.insertIntoUserPassword, [
+      const rows = query(usersQuery.insertIntoUsersPassword, [
         data.userId,
         data.userPassword,
       ]);
