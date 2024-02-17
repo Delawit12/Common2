@@ -1,6 +1,8 @@
 import http from "http";
 import express from "express";
 import { Server } from "socket.io";
+import dotenv from "dotenv";
+dotenv.config();
 
 const userSocketMap = {}; // {userId: socketId}
 
@@ -16,7 +18,7 @@ const mainServer = http.createServer(app);
 
 const io = new Server(mainServer, {
 	cors: {
-		origin: ["http://localhost:5173","*"],
+		origin: [process.env.CLIENT,"*"],
 		methods: ["GET", "POST"],
 	},
 });
