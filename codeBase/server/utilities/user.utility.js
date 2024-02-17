@@ -7,7 +7,7 @@ export default {
     return Math.floor(Math.random() * 900000 + 100000);
   },
   async sendEmail(userEmail, OTP) {
-    console.log(OTP);
+    //console.log(OTP)
     try {
       const transporter = nodemailer.createTransport({
         service: "gmail",
@@ -21,7 +21,7 @@ export default {
         from: process.env.EMAIL,
         to: userEmail,
         subject: "text",
-        text: `your huludelala verification code is ${OTP}`,
+        text: `your verification code is ${OTP}`,
       };
 
       await transporter.sendMail(mailOptions);

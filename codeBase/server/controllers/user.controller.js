@@ -1,7 +1,6 @@
 import userService from "../services/user.service.js";
 import userUtility from "../utilities/user.utility.js";
 import bcrypt from "bcrypt"; // Import bcrypt correctly
-import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -37,10 +36,9 @@ const userController = {
 
       // Check if email is used before
       const isEmailExist = await userService.getUserByEmail(req.body);
-
       // If there is an account related to this email
       if (isEmailExist.length > 0) {
-        console.log(isEmailExist);
+       // console.log(isEmailExist);
         return res.status(400).json({
           success: false,
           message: "Email is already used",
@@ -55,48 +53,42 @@ const userController = {
           success: false,
           message: "Phone is already used",
         });
-      } else {
-        let userId;
+      } 
 
-        // Password encryption
+      // validation completed 
+      // prepare pasword
+      // Password encryption
         const saltRounds = 10; // Specify a number of rounds
         const salt = bcrypt.genSaltSync(saltRounds);
         req.body.userPassword = bcrypt.hashSync(userPassword, salt);
-
+      
+      
         // Generate OTP
-        const OTP = userUtility.generateDigitOTP();
-        req.body.OTP = OTP;
-        console.log(req.body);
+        req.body.OTP= userUtility.generateDigitOTP();
+    
         // insetring the data
         const isUserDataInserted = await userService.insertIntoUsers(req.body);
         // Extract userId from the result
         req.body.userId = isUserDataInserted.insertId;
 
         // Insert user role into the user role table
-        const isUserRoleDataInserted = await userService.insertIntoUsersRole({
-          userId,
-          companyRoleId,
-        });
+        const isUserRoleDataInserted = await userService.insertIntoUsersRole(req.body);
         // Insert user password into the user password table
-        const isPasswordAdded = await userService.insertIntoUsersPassword(
-          req.body
-        );
+        const isUserPasswordAdded = await userService.insertIntoUsersPassword(req.body);
         // Insert contact verification data into the contact verification table
-        const isContactVerificationInserted =
-          await userService.insertIntoContactVerification({
-            userId: req.body.userId,
-            emailStatus: 0,
-            phoneStatus: 0,
-          });
+        const isContactVerificationInserted =await userService.insertIntoContactVerification(req.body);
 
+        // Insert user profile data into the contact verification table
+        const isUserProfileInserted =await userService.insertIntoUsersProfile(req.body);
         // Send OTP by email
-        userUtility.sendEmail(userEmail, OTP).then(async () => {
+        userUtility.sendEmail(userEmail, req.body.OTP).then(async () => {
           // Inserting password into the database
           if (
             isUserDataInserted &&
             isUserRoleDataInserted &&
-            isPasswordAdded &&
-            isContactVerificationInserted
+            isUserPasswordAdded &&
+            isContactVerificationInserted &&
+            isUserProfileInserted
           ) {
             res.status(200).json({
               success: true,
@@ -104,9 +96,7 @@ const userController = {
             });
           }
         });
-      }
     } catch (error) {
-      // console.log(error.message)
       res.status(500).json({
         success: false,
         message: error.message,
