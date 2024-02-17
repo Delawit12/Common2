@@ -8,6 +8,7 @@ const userService = {
       // console.log(data);
 
       const rows = await query(userQuery.insertIntoUser, [
+        //userEmail,firstName,middleName,lastName, userPhone, createdDate, OTP, activeStatus
         data.userEmail,
         data.userPassword,
         data.userPhone,

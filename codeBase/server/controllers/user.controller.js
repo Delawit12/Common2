@@ -8,99 +8,98 @@ dotenv.config();
 const userController = {
   // Register a new user
   registerUser: async (req, res) => {
-    const {
-      userEmail,
-      userPassword,
-      userPhone,
-      firstName,
-      middleName,
-      lastName,
-      companyRoleId,
-    } = req.body;
+    try {
+      const {
+        userEmail,
+        userPassword,
+        userPhone,
+        firstName,
+        middleName,
+        lastName,
+        companyRoleId,
+      } = req.body;
 
-    // Check all fields
-    if (
-      !userEmail ||
-      !userPassword ||
-      !userPhone ||
-      !firstName ||
-      !middleName ||
-      !lastName ||
-      !companyRoleId
-    ) {
-      return res.status(400).json({
+      // Check all fields
+      if (
+        !userEmail ||
+        !userPassword ||
+        !userPhone ||
+        !firstName ||
+        !middleName ||
+        !lastName ||
+        !companyRoleId
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "All fields are required",
+        });
+      }
+
+      // Check if email is used before
+      const isEmailExist = await userService.getUserByEmail(req.body);
+
+      // If there is an account related to this email
+      if (isEmailExist.length > 0) {
+        console.log(isEmailExist);
+        return res.status(400).json({
+          success: false,
+          message: "Email is already used",
+        });
+      }
+
+      // Check if the phone number is related to an account
+      const isPhoneExist = await userService.getUserByPhone(req.body);
+      // // If there is an account related to this phone
+      if (isPhoneExist.length) {
+        return res.status(400).json({
+          success: false,
+          message: "Phone is already used",
+        });
+      }
+      else {
+        let userId;
+
+        // Password encryption
+        const saltRounds = 10; // Specify a number of rounds
+        const salt = bcrypt.genSaltSync(saltRounds);
+        req.body.userPassword = bcrypt.hashSync(userPassword, salt);
+
+        // Generate OTP
+        const OTP = userUtility.generateDigitOTP();
+        req.body.OTP = OTP;
+        console.log(req.body);
+        // insetring the data
+       const isUserDataInserted = await userService.insertIntoUser(req.body);
+        // Extract userId from the result
+        req.body.userId =isUserDataInserted.insertId;
+
+        // Insert user role into the user role table
+        const isUserRoleDataInserted = await userService.insertIntoUserRole({userId, companyRoleId});
+        // Insert user password into the user password table
+        const isPasswordAdded = await userService.insertIntoUserPassword(req.body);
+        // Insert contact verification data into the contact verification table
+        const isContactVerificationInserted =  await userService.insertIntoContactVerification({
+          userId: req.body.userId,
+          emailStatus: 0,
+          phoneStatus: 0,
+        });
+
+        // Send OTP by email
+        userUtility.sendEmail(userEmail, OTP).then(async () => {
+          // Inserting password into the database
+          if (isUserDataInserted && isUserRoleDataInserted && isPasswordAdded && isContactVerificationInserted) {
+            res.status(200).json({
+              success: true,
+              message: "User created successfully",
+            });
+          }
+        });
+      }
+    } catch (error) {
+      // console.log(error.message)
+      res.status(500).json({
         success: false,
-        message: "All fields are required",
-      });
-    }
-
-    // Check if email is used before
-    const isEmailExist = await userService.getUserByEmail(userEmail);
-
-    // If there is an account related to this email
-
-    if (isEmailExist.length > 0) {
-      console.log(isEmailExist);
-      return res.status(400).json({
-        success: false,
-        message: "Email is already used",
-      });
-    }
-
-    // Check if the phone number is related to an account
-    const isPhoneExist = await userService.getUserByPhone(userPhone);
-
-    // If there is an account related to this phone
-    if (isPhoneExist.length) {
-      return res.status(400).json({
-        success: false,
-        message: "Phone is already used",
-      });
-    } else {
-      let userId;
-
-      // Password encryption
-      const saltRounds = 10; // Specify a number of rounds
-      const salt = bcrypt.genSaltSync(saltRounds);
-      req.body.userPassword = bcrypt.hashSync(userPassword, salt);
-
-      // Generate OTP
-      const OTP = userUtility.generateDigitOTP();
-      req.body.OTP = OTP;
-
-      const isUserDataInserted = await userService.insertIntoUser(req.body);
-
-      // Extract userId from the result
-      userId = registerUser.insertId;
-      req.body.userId = userId;
-
-      // Insert user role into the user role table
-      await userService.insertIntoUserRole(userId, companyRoleId);
-
-      // Insert user password into the user password table
-      const isPasswordAdded = await userService.insertIntoUserPassword(
-        req.body
-      );
-
-      // Insert contact verification data into the contact verification table
-      await userService.insertIntoContactVerification({
-        userId: req.body.userId,
-        emailStatus: 0,
-        phoneStatus: 0,
-      });
-
-      // Send OTP by email
-      userUtility.sendEmail(userEmail, OTP).then(async () => {
-        // Inserting password into the database
-        const isPasswordAdded = await userService.insertIntoUserPassword(
-          req.body
-        );
-        if (isPasswordAdded) {
-          res.status(200).json({
-            success: true,
-            message: "User created successfully",
-          });
-        }
+        message: error.message,
       });
     }
   },
