@@ -3,7 +3,7 @@ import query from "../config/db.js";
 import userQuery from "../queries/user.query.js";
 
 const userService = {
-  insertIntoUser: async (data) => {
+  insertIntoUsers: async (data) => {
     try {
       // console.log(data);
 
@@ -42,11 +42,11 @@ const userService = {
       return null;
     }
   },
-  insertIntoUserRole: async (data) => {
+  insertIntoUsersRole: async (data) => {
     try {
       // console.log(data);
 
-      const rows = await query(userQuery.insertIntoUserRole, [
+      const rows = await query(userQuery.insertIntoUsersRole, [
         data.userId,
         data.companyRoleId,
       ]);
@@ -56,11 +56,11 @@ const userService = {
       return null;
     }
   },
-  insertIntoUserPassword: (data) => {
+  insertIntoUsersPassword: (data) => {
     // Add the return statement
     try {
       // console.log(data);
-      const rows = query(usersQuery.insertIntoUserPassword, [
+      const rows = query(usersQuery.insertIntoUsersPassword, [
         data.userId,
         data.userPassword,
       ]);
@@ -74,7 +74,7 @@ const userService = {
     // Add the return statement
     try {
       // console.log(data);
-      const rows = query(usersQuery.insertIntoContactVerification, [
+      const rows = query(userQuery.insertIntoContactVerification, [
         data.userId,
         data.emailStatus,
         data.phoneStatus,
@@ -87,7 +87,7 @@ const userService = {
   },
   getUserOTPByUserId: (data) => {
     try {
-      const rows = query(usersQuery.getUserOTPByUserId, [data.userId]);
+      const rows = query(userQuery.getUserOTPByUserId, [data.userId]);
       return rows;
     } catch (e) {
       console.log(e);
@@ -116,7 +116,7 @@ const userService = {
   },
   newOTP: (data) => {
     try {
-      const rows = query(usersQuery.newOTP, [data.userId, data.OTP]);
+      const rows = query(userQuery.newOTP, [data.userId, data.OTP]);
       return rows;
     } catch (error) {
       console.log("Error updating user's OTP:", error);

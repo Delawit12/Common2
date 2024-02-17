@@ -69,14 +69,14 @@ const userController = {
         req.body.OTP = OTP;
         console.log(req.body);
         // insetring the data
-       const isUserDataInserted = await userService.insertIntoUser(req.body);
+       const isUserDataInserted = await userService.insertIntoUsers(req.body);
         // Extract userId from the result
         req.body.userId =isUserDataInserted.insertId;
 
         // Insert user role into the user role table
-        const isUserRoleDataInserted = await userService.insertIntoUserRole({userId, companyRoleId});
+        const isUserRoleDataInserted = await userService.insertIntoUsersRole({userId, companyRoleId});
         // Insert user password into the user password table
-        const isPasswordAdded = await userService.insertIntoUserPassword(req.body);
+        const isPasswordAdded = await userService.insertIntoUsersPassword(req.body);
         // Insert contact verification data into the contact verification table
         const isContactVerificationInserted =  await userService.insertIntoContactVerification({
           userId: req.body.userId,
