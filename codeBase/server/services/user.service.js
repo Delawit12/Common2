@@ -7,7 +7,7 @@ const userService = {
     try {
       // console.log(data);
 
-      const rows = await query(userQuery.insertIntoUser, [
+      const rows = await query(userQuery.insertIntoUsers, [
         //userEmail,firstName,middleName,lastName, userPhone, createdDate, OTP, activeStatus
         data.userEmail,
         data.userPassword,
@@ -75,7 +75,7 @@ const userService = {
     // Add the return statement
     try {
       // console.log(data);
-      const rows = query(usersQuery.insertIntoContactVerification, [
+      const rows = query(userQuery.insertIntoContactVerification, [
         data.userId,
         data.emailStatus,
         data.phoneStatus,
@@ -88,7 +88,7 @@ const userService = {
   },
   getUserOTPByUserId: (data) => {
     try {
-      const rows = query(usersQuery.getUserOTPByUserId, [data.userId]);
+      const rows = query(userQuery.getUserOTPByUserId, [data.userId]);
       return rows;
     } catch (e) {
       console.log(e);
@@ -117,7 +117,7 @@ const userService = {
   },
   newOTP: (data) => {
     try {
-      const rows = query(usersQuery.newOTP, [data.userId, data.OTP]);
+      const rows = query(userQuery.newOTP, [data.userId, data.OTP]);
       return rows;
     } catch (error) {
       console.log("Error updating user's OTP:", error);
