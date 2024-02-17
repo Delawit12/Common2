@@ -13,14 +13,23 @@ const loginService = {
   },
   getUserPasswordByUserId: async (data) => {
     try {
-      const rows = await query(loginQuery.getUserPasswordByUserId, [
-        data.userId,
-      ]);
+      const rows = await query(loginQuery.getUserPasswordByUserId, [data.userId]);
       return rows;
     } catch (e) {
       console.log(e);
       return null;
     }
   },
+  getUserRoleAndFirstName:async (data) => {
+    try {
+      const rows = await query(loginQuery.getUserRoleAndFirstName, [data.userId]);
+      return rows;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  },
+
+
 };
 export default loginService;
