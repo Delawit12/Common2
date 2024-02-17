@@ -7,15 +7,14 @@ const userService = {
     try {
       // console.log(data);
 
-      const rows = await query(userQuery.insertIntoUser, [
+      const rows = await query(userQuery.insertIntoUsers, [
         //userEmail,firstName,middleName,lastName, userPhone, createdDate, OTP, activeStatus
         data.userEmail,
-        data.userPassword,
-        data.userPhone,
         data.firstName,
         data.middleName,
         data.lastName,
-        data.companyRoleId,
+        data.userPhone,
+        data.OTP,
       ]);
       return rows;
     } catch (e) {
