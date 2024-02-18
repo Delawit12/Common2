@@ -1,4 +1,4 @@
--- Active: 1708107622480@@127.0.0.1@3306@hulucommon
+-- Active: 1708107622480@@176.58.119.63@3306@huludeig_common
 CREATE DATABASE huluCommon;
 
 -- Create CompaniesRole Table

@@ -33,7 +33,7 @@ const userService = {
     }
   },
 
-  insertIntoUsersPassword: (data) => {
+  insertIntoUsersPassword: async (data) => {
     try {
       const rows = query(userQuery.insertIntoUsersPassword, [
         data.userId,
@@ -42,11 +42,12 @@ const userService = {
       return rows;
     } catch (e) {
       console.log(e);
+      console.error("Error in insertIntoUsersPassword:", error);
       return null;
     }
   },
 
-  insertIntoContactVerification: (data) => {
+  insertIntoContactVerification: async (data) => {
     try {
       const rows = query(userQuery.insertIntoContactVerification, [
         data.userId,
@@ -74,11 +75,11 @@ const userService = {
     }
   },
 
-  insertUserPassword: async (data) => {
+  insertIntoUsersPassword: async (userId, userPassword) => {
     try {
-      const rows = await query(userQuery.insertUserPassword, [
-        data.userId,
-        data.userPassword,
+      const rows = await query(userQuery.insertIntoUsersPassword, [
+        userId,
+        userPassword,
       ]);
       return rows;
     } catch (e) {
@@ -117,7 +118,7 @@ const userService = {
     }
   },
 
-  getUserOTPByUserId: (data) => {
+  getUserOTPByUserId: async (data) => {
     try {
       const rows = query(userQuery.getUserOTPByUserId, [data.userId]);
       return rows;
@@ -139,9 +140,9 @@ const userService = {
     }
   },
 
-  updateOTP: (data) => {
+  updateOTP: async (data) => {
     try {
-      const rows = query(userQuery.updateOTP[data.userId]);
+      const rows = query(userQuery.updateOTP, [data.userId]);
       return rows;
     } catch (error) {
       console.error("Error updating user's OTP:", error);
@@ -149,11 +150,11 @@ const userService = {
     }
   },
 
-  updateContactVerificationEmailStatus: (data) => {
+  updateContactVerificationEmailStatus: async (data) => {
     try {
-      const rows = query(
-        userQuery.updateContactVerificationEmailStatus[data.userId]
-      );
+      const rows = query(userQuery.updateContactVerificationEmailStatus, [
+        data.userId,
+      ]);
       return rows;
     } catch (error) {
       console.error("Error updating user's OTP:", error);
@@ -161,7 +162,7 @@ const userService = {
     }
   },
 
-  newOTP: (data) => {
+  newOTP: async (data) => {
     try {
       const rows = query(userQuery.newOTP, [data.userId, data.OTP]);
       return rows;
@@ -170,7 +171,7 @@ const userService = {
     }
   },
 
-  updateUserPassword: (data) => {
+  updateUserPassword: async (data) => {
     try {
       const rows = query(
         userQuery.updateUserPassword[(data.userId, data.newPassword)]
