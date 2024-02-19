@@ -4,7 +4,7 @@ sendMessage: async (req, res) => {
     try {
       const { user1, user2, content } = req.body;
 
-      if (!senderId || !recipientId || !content) {
+      if (!user1 || !user2 || !content) {
         return res.status(400).json({
           success: false,
           message: 'All fields are required',
@@ -121,7 +121,8 @@ sendMessage: async (req, res) => {
       const lastMessage = messages[messages.length - 1];
       const allAboutMessage =  await messageService.getMessages(conversationId);
       const conversationId = allAboutMessage[0].conversationId;
-      const conversationId = allAboutMessage[0].conversationId;
+      const conversationId = allAboutMessage[0].
+      ;
 
 
   
