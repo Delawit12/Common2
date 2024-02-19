@@ -1,6 +1,6 @@
 import messageService from '../services/message.service'
-
-sendMessage: async (req, res) => {
+const messageController={
+  sendMessage: async (req, res) => {
     try {
       const { user1, user2, content } = req.body;
 
@@ -137,6 +137,8 @@ sendMessage: async (req, res) => {
       });
     }
   },
+}
+
 
 
 
