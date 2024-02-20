@@ -1,5 +1,6 @@
 const messageQuery={
     getConversation: `SELECT * from conversations where userOneId=? and userTwoId=?`,
+    getMessageById: `SELECT * from conversations where conversationId =?`,
     createConversation: `INSERT INTO conversations (userOneId, userTwoId) VALUES (?, ?);`,
     insertIntoMessage: `INSERT INTO messages (conversationId, senderId, createdDate, seen)
     VALUES (?, ?, now(), 0);`,

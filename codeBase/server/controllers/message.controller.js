@@ -90,8 +90,8 @@ const messageController = {
     try {
       const isConversationExist = await messageService.getConversation(req.body);
       req.body.conversationId = isConversationExist[0].conversationId;
-
-      const isMessageExist = await messageService.getMessage(req.body);
+      
+      const isMessageExist = await messageService.getMessageById(req.body);
 
       const lastMessage = isMessageExist[isMessageExist.length - 1];
 
