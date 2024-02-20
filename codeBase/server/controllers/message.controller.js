@@ -1,102 +1,100 @@
-import messageService from '../services/message.service'
-import multer from '../config/multer'
+import messageService from '../services/message.service.js';
+import userService from '../services/user.service.js';
 
-sendMessage: async (req, res) => {
+const messageController = {
+  sendMessage: async (req, res) => {
     try {
-      const { senderId, recipientId, content } = req.body;
-  
-      if (!senderId || !recipientId || !content) {
-        return res.status(400).json({
-          success: false,
-          message: 'All fields are required',
-        });
-      }
-  
-      req.body.user1 = parseInt(senderId) > parseInt(recipientId) ? recipientId : senderId;
-      req.body.user2 = parseInt(senderId) > parseInt(recipientId) ? senderId : recipientId;
-  
-      const existingConversation = await messageService.getConversation(req.body.user1, req.body.user2);
-      if (!existingConversation) {
-        const createConversation = await messageService.createConversation(req.body.user1, req.body.user2);
-        req.body.conversationId = createConversation.insertedId;
-      } else {
-        req.body.conversationId = existingConversation[0].conversationId;
-      }
-  
-      // Check if the request contains a text file
-      if (req.file && req.isText) {
-        // Store the text file in the text table
-        const text = {
-          user1: req.body.user1,
-          user2: req.body.user2,
-          conversationId: req.body.conversationId,
-          messageText: req.file.path, // Assuming the text content is stored in the file
-        };
-        await messageService.insertText(text);
-      } else {
-        // Store all other file types (including images) in the files table
-        const file = {
-          user1: req.body.user1,
-          user2: req.body.user2,
-          conversationId: req.body.conversationId,
-          imageUrl: req.file.path,
-        };
-        await messageService.insertFile(file);
-      }
-  
-      // Store the text message in the messages table
-      const message = {
-        user1: req.body.user1,
-        user2: req.body.user2,
-        conversationId: req.body.conversationId,
-        content: content,
-      };
-      await messageService.insertMessage(message);
-  
-      return res.status(200).json({
-        success: true,
-        message: 'Message sent',
-      });
-    } catch (error) {
-      console.error('Error sending message:', error);
-      return res.status(500).json({
-        success: false,
-        message: 'Server error',
-      });
-    },
-  
-  retrieveMessages: async (req, res) => {
-    try {
-      const { senderId, recipientId } = req.body;
-  
+      const { senderId, recipientId, isText } = req.body;
+
       if (!senderId || !recipientId) {
         return res.status(400).json({
           success: false,
           message: 'All fields are required',
         });
       }
-  
-      const existingConversation = await messageService.getConversation(senderId, recipientId);
-  
-      if (!existingConversation) {
-        return res.status(404).json({
-          success: false,
-          message: 'Conversation not found',
+
+      req.body.user1 = parseInt(senderId) > parseInt(recipientId) ? recipientId : senderId;
+      req.body.user2 = parseInt(senderId) > parseInt(recipientId) ? senderId : recipientId;
+      const isConversationExist = await messageService.getConversation(req.body);
+      if (!isConversationExist.length) {
+        const createConversation = await messageService.createConversation(req.body);
+        req.body.conversationId = createConversation.insertId;
+      } else {
+        req.body.conversationId = isConversationExist[0].conversationId;
+      }
+      if (!isText) {
+        req.body.imageUrl = req.file.path;
+        req.body.messageText = "";
+      } else {
+        req.body.imageUrl = "";
+      }
+       
+      // messageId, isText, imageUrl, messageText
+      const isMessage = await messageService.insertIntoMessage(req.body);
+      req.body.messageId = isMessage.insertId;
+      console.log(isMessage);
+      const isMessageContent = await messageService.insertIntoMessageContent(req.body);
+      console.log(isMessageContent);
+      if (isMessage && isMessageContent) {
+        return res.status(200).json({
+          success: true,
+          message: 'Message sent',
         });
       }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Server error',
+      });
+    }
+  },
   
-      const conversationId = existingConversation[0].conversationId;
-      const messages = await messageService.getConversationMessages(conversationId);
-  
-      if (!messages || messages.length === 0) {
-        return res.status(404).json({
+  getConversation: async (req, res) => {
+     try {
+    //   const { user2 } = req.body;
+    //   const user1 = req.user.id; // Assuming user ID is stored in req.user.id
+
+    //   const conversationData = {
+    //     user1: Math.min(user1, user2),
+    //     user2: Math.max(user1, user2)
+    //   };
+
+      const isConversationExist = await messageService.getConversation(conversationData);
+
+      if (!isConversationExist.length) {
+        return res.status(400).json({
           success: false,
-          message: 'No messages found',
+          message: 'No conversation found',
+        });
+      } else {
+        const conversationId = isConversationExist[0].conversationId;
+        const messageData = { conversationId };
+        const isMessageExist = await messageService.getMessage(messageData);
+
+        return res.status(200).json({
+          success: true,
+          data: isMessageExist,
         });
       }
+    } catch (error) {
+      console.error('Error retrieving conversation:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Server error',
+      });
+    }
+  },
   
-      const lastMessage = messages[messages.length - 1];
-  
+  getLastMessage: async (req, res) => {
+    try {
+      const isConversationExist = await messageService.getConversation(req.body);
+      req.body.conversationId = isConversationExist[0].conversationId;
+
+      const isMessageExist = await messageService.getMessage(req.body);
+
+      const lastMessage = isMessageExist[isMessageExist.length - 1];
+
       return res.status(200).json({
         success: true,
         data: lastMessage,
@@ -109,48 +107,19 @@ sendMessage: async (req, res) => {
       });
     }
   },
-
-  retrieveLastMessages: async (req, res) => {
-    try {
-      const { senderId, recipientId } = req.body;
   
-      if (!senderId || !recipientId) {
+  getRoleName: async (req, res) => {
+    try {
+      const isRoleName = await messageService.getRoleName(req.body);
+      if (!isRoleName.length) {
         return res.status(400).json({
           success: false,
-          message: 'All fields are required',
+          message: 'No Role found',
         });
       }
-  
-      const existingConversation = await messageService.getConversation(senderId, recipientId);
-  
-      if (!existingConversation) {
-        return res.status(404).json({
-          success: false,
-          message: 'Conversation not found',
-        });
-      }
-  
-      const conversationId = existingConversation[0].conversationId;
-      const messages = await messageService.getConversationMessages(conversationId);
-  
-      if (!messages || messages.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'No messages found',
-        });
-      }
-  
-      const lastMessage = messages[messages.length - 1];
-      const allAboutMessage =  await messageService.getMessages(conversationId);
-      const conversationId = allAboutMessage[0].conversationId;
-      const conversationId = allAboutMessage[0].
-      ;
-
-
-  
       return res.status(200).json({
         success: true,
-        data: lastMessage,
+        data: isRoleName,
       });
     } catch (error) {
       console.error('Error retrieving messages:', error);
@@ -159,102 +128,7 @@ sendMessage: async (req, res) => {
         message: 'Server error',
       });
     }
-  }
-
-},
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//       if (messages) {
-//         return res.status(200).json({
-//           success: true,
-//           data: messages
-//         });
-//       } else {
-//         return res.status(500).json({
-//           success: false,
-//           message: 'Failed to retrieve messages'
-//         });
-//       }
-//     } catch (error) {
-//       console.error('Error retrieving messages:', error);
-//       return res.status(500).json({
-//         success: false,
-//         message: 'Server error'
-//       });
-//     }
-//   },
-
-//   retrieveConversation: async (req, res) => {
-//     try {
-//       const { user1, user2 } = req.body;
-//       const conversation = await messageService.retrieveConversation(user1, user2);
-
-//       if (!conversation) {
-//         return res.status(404).json({
-//           success: false,
-//           message: 'Conversation not found'
-//         });
-//       } else {
-//         return res.status(200).json({
-//           success: true,
-//           data: conversation
-//         });
-//       }
-//     } catch (error) {
-//       console.error('Error retrieving conversation:', error);
-//       return res.status(500).json({
-//         success: false,
-//         message: 'Failed to retrieve conversation'
-//       });
-//     }
-//   },
-
-//   createConversation: async (req, res) => {
-//     try {
-//       const { user1, user2 } = req.body;
-//       await messageService.createConversation(user1, user2);
-//       return res.status(200).json({
-//         success: true,
-//         message: 'Conversation created successfully'
-//       });
-//     } catch (error) {
-//       console.error('Error creating conversation:', error);
-//       return res.status(500).json({
-//         success: false,
-//         error: 'Failed to create conversation'
-//       });
-//     }
-//   }
+  },
 };
+
 export default messageController;

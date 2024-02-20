@@ -9,14 +9,14 @@ const fileFilter = function (req, file, cb) {
   
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      if (req.isText) {
+      if (req.body.isText) {
         cb(null, 'uploads/text/'); // Destination folder for text files
       } else {
         cb(null, 'uploads/files/'); // Destination folder for all other file types
       }
     },
     filename: function (req, file, cb) {
-      if (req.isText) {
+      if (req.body.isText) {
         cb(null, 'text-' + Date.now() + '-' + file.originalname); // File naming for text files
       } else {
         cb(null, 'file-' + Date.now() + '-' + file.originalname); // File naming for all other file types
