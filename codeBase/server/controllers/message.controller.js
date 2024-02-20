@@ -1,19 +1,20 @@
 import messageService from '../services/message.service'
+import multer from '../config/multer'
 
 sendMessage: async (req, res) => {
     try {
-      const { user1, user2, content } = req.body;
-
-      if (!user1 || !user2 || !content) {
+      const { senderId, recipientId, content } = req.body;
+  
+      if (!senderId || !recipientId || !content) {
         return res.status(400).json({
           success: false,
           message: 'All fields are required',
         });
       }
-
+  
       req.body.user1 = parseInt(senderId) > parseInt(recipientId) ? recipientId : senderId;
       req.body.user2 = parseInt(senderId) > parseInt(recipientId) ? senderId : recipientId;
-
+  
       const existingConversation = await messageService.getConversation(req.body.user1, req.body.user2);
       if (!existingConversation) {
         const createConversation = await messageService.createConversation(req.body.user1, req.body.user2);
@@ -21,28 +22,49 @@ sendMessage: async (req, res) => {
       } else {
         req.body.conversationId = existingConversation[0].conversationId;
       }
-
-      const isSent = await messageService.insertIntoMessage(req.body);
-      if (!isSent) {
-        return res.status(400).json({
-          success: false,
-          message: 'Failed to send the message'
-        });
+  
+      // Check if the request contains a text file
+      if (req.file && req.isText) {
+        // Store the text file in the text table
+        const text = {
+          user1: req.body.user1,
+          user2: req.body.user2,
+          conversationId: req.body.conversationId,
+          messageText: req.file.path, // Assuming the text content is stored in the file
+        };
+        await messageService.insertText(text);
       } else {
-        return res.status(200).json({
-          success: true,
-          message: 'Message sent'
-        });
+        // Store all other file types (including images) in the files table
+        const file = {
+          user1: req.body.user1,
+          user2: req.body.user2,
+          conversationId: req.body.conversationId,
+          imageUrl: req.file.path,
+        };
+        await messageService.insertFile(file);
       }
+  
+      // Store the text message in the messages table
+      const message = {
+        user1: req.body.user1,
+        user2: req.body.user2,
+        conversationId: req.body.conversationId,
+        content: content,
+      };
+      await messageService.insertMessage(message);
+  
+      return res.status(200).json({
+        success: true,
+        message: 'Message sent',
+      });
     } catch (error) {
-//      console.error('Error sending message:', error);
+      console.error('Error sending message:', error);
       return res.status(500).json({
         success: false,
-        message: 'Server error'
+        message: 'Server error',
       });
-    }
-  },
-
+    },
+  
   retrieveMessages: async (req, res) => {
     try {
       const { senderId, recipientId } = req.body;
@@ -137,9 +159,9 @@ sendMessage: async (req, res) => {
         message: 'Server error',
       });
     }
-  },
+  }
 
-
+},
 
 
 
