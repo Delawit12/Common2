@@ -1,4 +1,4 @@
-import profileService from "../services/profile.services.js";
+import profileService from "../services/profile.service.js";
 const profileController = {
   updateProfile: async (req, res, next) => {
     try {
@@ -6,7 +6,7 @@ const profileController = {
       const { firstName, middleName, lastName, gender } = req.body;
 
       // Check if all fields are provided
-      if (!userId || !firstName || !middleName || !lastName || !gender) {
+      if (!userId || !firstName || !middleName || !lastName) {
         return res.status(500).json({
           status: "false",
           message: "All fields are required",

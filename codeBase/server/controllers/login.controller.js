@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 const loginController = {
   loginUser: async (req, res) => {
+    console.log(req.body);
     try {
       const { userEmail, userPassword } = req.body;
       //console.log(req.body);

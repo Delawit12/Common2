@@ -75,11 +75,11 @@ const userService = {
     }
   },
 
-  insertIntoUsersPassword: async (userId, userPassword) => {
+  insertIntoUsersPassword: async (data) => {
     try {
       const rows = await query(userQuery.insertIntoUsersPassword, [
-        userId,
-        userPassword,
+        data.userId,
+        data.userPassword,
       ]);
       return rows;
     } catch (e) {
@@ -171,16 +171,16 @@ const userService = {
     }
   },
 
-  updateUserPassword: async (data) => {
-    try {
-      const rows = query(
-        userQuery.updateUserPassword[(data.userId, data.newPassword)]
-      );
-      return rows;
-    } catch (error) {
-      console.error("Error updating user's password:", error);
-      return null;
-    }
-  },
+  // insertUserPassword: async (data) => {
+  //   try {
+  //     const rows = query(
+  //       userQuery.insertUserPassword[(data.userId, data.userPassword)]
+  //     );
+  //     return rows;
+  //   } catch (error) {
+  //     console.error("Error updating user's password:", error);
+  //     return null;
+  //   }
+  // },
 };
 export default userService;

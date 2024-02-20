@@ -292,8 +292,9 @@ const userController = {
   // Change password
   changePassword: async (req, res) => {
     try {
+      req.body.userId = req.userId;
       const { userId, oldPassword, userPassword } = req.body;
-
+      console.log(userId);
       // Validate the request values
       if (!userId || !userPassword || !oldPassword) {
         return res.json({
@@ -304,6 +305,7 @@ const userController = {
 
       // Check if the old password is correct
       const userData = await userService.getUserPasswordByUserId(req.body);
+      console.log(userData);
       if (!userData) {
         return res.status(500).json({
           success: false,
@@ -313,6 +315,7 @@ const userController = {
 
       // Compare the old password with the last one from the table
       const dbPassword = userData[userData.length - 1].userPassword;
+      console.log(dbPassword);
       const isMatch = bcrypt.compareSync(oldPassword, dbPassword);
       if (!isMatch) {
         return res.status(500).json({
@@ -321,33 +324,37 @@ const userController = {
         });
       }
 
-      for (let i = 0; i < userData.length; i++) {
-        let dbPassword = userData[i].userPassword;
-        // Compare
-        const isMatch = bcrypt.compareSync(userPassword, dbPassword);
-        if (isMatch) {
-          return res.status(500).json({
-            success: false,
-            message: "This password is already used. Please use another",
-          });
-        }
-      }
+      // for (let i = 0; i < userData.length; i++) {
+      //   let dbPassword = userData[i].userPassword;
+      //   // Compare
+      //   const isMatch = bcrypt.compareSync(userPassword, dbPassword);
+      //   if (isMatch) {
+      //     return res.status(500).json({
+      //       success: false,
+      //       message: "This password is already used. Please use another",
+      //     });
+      //   }
+      // }
 
       // Password encryption
       const salt = bcrypt.genSaltSync(10); // Specify the number of rounds
       req.body.userPassword = bcrypt.hashSync(userPassword, salt);
 
-      const updateUserPassword = await userService.updateUserPassword(req.body);
-      if (!updateUserPassword) {
+      const insertUserPassword = await userService.insertIntoUsersPassword(
+        userId,
+        userPassword
+      );
+
+      if (!insertUserPassword) {
         return res.status(500).json({
           success: false,
-          message: "Database error during password changing",
+          message: " error during password insertion",
         });
       }
 
       return res.status(200).json({
         success: true,
-        message: "Password changed successfully",
+        message: "Password inserted successfully",
       });
     } catch (error) {
       console.error("Error in changePassword:", error);

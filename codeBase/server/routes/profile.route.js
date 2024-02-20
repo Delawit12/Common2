@@ -1,4 +1,4 @@
-import auth from "../auth/auth.js";
+import { auth } from "../auth/auth.js";
 import profileController from "../controllers/profile.controller.js";
 import express from "express";
 const profileRout = express.Router();
