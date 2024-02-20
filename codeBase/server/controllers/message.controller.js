@@ -1,8 +1,10 @@
-import messageService from '../services/message.service'
+import messageService from '../services/message.service.js'
 const messageController={
   sendMessage: async (req, res) => {
     try {
-      const { senderId, recipientId, isText } = req.body;
+      req.body.senderId =  req.userId ;
+      const { senderId ,recipientId, isText } = req.body;
+     
 
       if (!senderId || !recipientId) {
         return res.status(400).json({
@@ -14,6 +16,7 @@ const messageController={
       req.body.user1 = parseInt(senderId) > parseInt(recipientId) ? recipientId : senderId;
       req.body.user2 = parseInt(senderId) > parseInt(recipientId) ? senderId : recipientId;
       const isConversationExist = await messageService.getConversation(req.body);
+      console.log(isConversationExist);
       if (!isConversationExist.length) {
         const createConversation = await messageService.createConversation(req.body);
         req.body.conversationId = createConversation.insertId;
@@ -29,6 +32,7 @@ const messageController={
        
       // messageId, isText, imageUrl, messageText
       const isMessage = await messageService.insertIntoMessage(req.body);
+      console.log(isMessage);
       req.body.messageId = isMessage.insertId;
       console.log(isMessage);
       const isMessageContent = await messageService.insertIntoMessageContent(req.body);
@@ -50,6 +54,14 @@ const messageController={
   
   getConversation: async (req, res) => {
      try {
+      const userId =req.userId;
+      const isConversationsExists = await messageService.getConversation(userId);
+      return res.status(200).json({
+        success: true,
+        data: isConversationsExists
+      })
+    
+
     //   const { user2 } = req.body;
     //   const user1 = req.user.id; // Assuming user ID is stored in req.user.id
 
@@ -58,23 +70,23 @@ const messageController={
     //     user2: Math.max(user1, user2)
     //   };
 
-      const isConversationExist = await messageService.getConversation(conversationData);
+      // const isConversationExist = await messageService.getConversation(conversationData);
 
-      if (!isConversationExist.length) {
-        return res.status(400).json({
-          success: false,
-          message: 'No conversation found',
-        });
-      } else {
-        const conversationId = isConversationExist[0].conversationId;
-        const messageData = { conversationId };
-        const isMessageExist = await messageService.getMessage(messageData);
+      // if (!isConversationExist.length) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: 'No conversation found',
+      //   });
+      // } else {
+      //   const conversationId = isConversationExist[0].conversationId;
+      //   const messageData = { conversationId };
+      //   const isMessageExist = await messageService.getMessage(messageData);
 
-        return res.status(200).json({
-          success: true,
-          data: isMessageExist,
-        });
-      }
+      //   return res.status(200).json({
+      //     success: true,
+      //     data: isMessageExist,
+      //   });
+      // }
     } catch (error) {
       console.error('Error retrieving conversation:', error);
       return res.status(500).json({
@@ -84,6 +96,26 @@ const messageController={
     }
   },
   
+  getMessage: async (req, res) => {
+    try {
+     const conversationId = req.params.id.substring(1);
+     const isMessagesExists = await messageService.getMessage(conversationId);
+     return res.status(200).json({
+       success: true,
+       data: isMessagesExists
+     })
+   
+
+   } catch (error) {
+     console.error('Error retrieving conversation:', error);
+     return res.status(500).json({
+       success: false,
+       message: 'Server error',
+     });
+   }
+ },
+
+
   getLastMessage: async (req, res) => {
     try {
       const isConversationExist = await messageService.getConversation(req.body);

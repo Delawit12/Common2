@@ -74,7 +74,16 @@ getRoleName: async(data)=>{
 
 getConversation: async (data) => {
   try {
-    const rows = await query(messageQuery.getConversation, [data.conversationId]);
+    const rows = await query(messageQuery.getConversation, [data,data]);
+    return rows;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+},
+getMessage: async (data) => {
+  try {
+    const rows = await query(messageQuery.getMessage, [data]);
     return rows;
   } catch (e) {
     console.log(e);
