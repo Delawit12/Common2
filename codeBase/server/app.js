@@ -1,5 +1,5 @@
 import express from "express";
-import cookieParser from "cookie-parser";
+// import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 dotenv.config();
 import path from "path";
@@ -20,7 +20,7 @@ const corsOptions = {
 };
 //app.use(cors(corsOptions));
 
-app.use(cookieParser());
+// app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

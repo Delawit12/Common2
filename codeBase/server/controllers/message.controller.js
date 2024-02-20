@@ -1,7 +1,5 @@
-import messageService from '../services/message.service.js';
-import userService from '../services/user.service.js';
-
-const messageController = {
+import messageService from '../services/message.service'
+const messageController={
   sendMessage: async (req, res) => {
     try {
       const { senderId, recipientId, isText } = req.body;

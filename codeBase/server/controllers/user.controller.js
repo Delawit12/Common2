@@ -38,7 +38,7 @@ const userController = {
       const isEmailExist = await userService.getUserByEmail(req.body);
       // If there is an account related to this email
       if (isEmailExist.length > 0) {
-       // console.log(isEmailExist);
+        // console.log(isEmailExist);
         return res.status(400).json({
           success: false,
           message: "Email is already used",
@@ -53,49 +53,55 @@ const userController = {
           success: false,
           message: "Phone is already used",
         });
-      } 
+      }
 
-      // validation completed 
+      // validation completed
       // prepare pasword
       // Password encryption
-        const saltRounds = 10; // Specify a number of rounds
-        const salt = bcrypt.genSaltSync(saltRounds);
-        req.body.userPassword = bcrypt.hashSync(userPassword, salt);
-      
-      
-        // Generate OTP
-        req.body.OTP= userUtility.generateDigitOTP();
-    
-        // insetring the data
-        const isUserDataInserted = await userService.insertIntoUsers(req.body);
-        // Extract userId from the result
-        req.body.userId = isUserDataInserted.insertId;
+      const saltRounds = 10; // Specify a number of rounds
+      const salt = bcrypt.genSaltSync(saltRounds);
+      req.body.userPassword = bcrypt.hashSync(userPassword, salt);
 
-        // Insert user role into the user role table
-        const isUserRoleDataInserted = await userService.insertIntoUsersRole(req.body);
-        // Insert user password into the user password table
-        const isUserPasswordAdded = await userService.insertIntoUsersPassword(req.body);
-        // Insert contact verification data into the contact verification table
-        const isContactVerificationInserted =await userService.insertIntoContactVerification(req.body);
+      // Generate OTP
+      req.body.OTP = userUtility.generateDigitOTP();
 
-        // Insert user profile data into the contact verification table
-        const isUserProfileInserted =await userService.insertIntoUsersProfile(req.body);
-        // Send OTP by email
-        userUtility.sendEmail(userEmail, req.body.OTP).then(async () => {
-          // Inserting password into the database
-          if (
-            isUserDataInserted &&
-            isUserRoleDataInserted &&
-            isUserPasswordAdded &&
-            isContactVerificationInserted &&
-            isUserProfileInserted
-          ) {
-            res.status(200).json({
-              success: true,
-              message: "User created successfully",
-            });
-          }
-        });
+      // insetring the data
+      const isUserDataInserted = await userService.insertIntoUsers(req.body);
+      // Extract userId from the result
+      req.body.userId = isUserDataInserted.insertId;
+
+      // Insert user role into the user role table
+      const isUserRoleDataInserted = await userService.insertIntoUsersRole(
+        req.body
+      );
+      // Insert user password into the user password table
+      const isUserPasswordAdded = await userService.insertIntoUsersPassword(
+        req.body
+      );
+      // Insert contact verification data into the contact verification table
+      const isContactVerificationInserted =
+        await userService.insertIntoContactVerification(req.body);
+
+      // Insert user profile data into the contact verification table
+      const isUserProfileInserted = await userService.insertIntoUsersProfile(
+        req.body
+      );
+      // Send OTP by email
+      userUtility.sendEmail(userEmail, req.body.OTP).then(async () => {
+        // Inserting password into the database
+        if (
+          isUserDataInserted &&
+          isUserRoleDataInserted &&
+          isUserPasswordAdded &&
+          isContactVerificationInserted &&
+          isUserProfileInserted
+        ) {
+          res.status(200).json({
+            success: true,
+            message: "User created successfully",
+          });
+        }
+      });
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -119,20 +125,23 @@ const userController = {
       // Check if the email exists
       const getUserByEmail = await userService.getUserByEmail(req.body);
       const userId = getUserByEmail[0].userId;
+      req.body.userId = userId;
 
-      const getOTP = await userService.getUserOTPByUserId(userId);
+      const getOTP = await userService.getUserOTPByUserId(req.body);
 
       if (!getOTP.length) {
         return res.status(500).json({
           success: false,
-          message: "OTP does not match",
+          message: "OTP not found",
         });
       } else {
         const storedOTP = getOTP[0].OTP;
         if (OTP === storedOTP) {
           // Correct OTP, perform any necessary actions
           // Update user's OTP to null
-          const updatedOTP = await userService.updateOTP(userId);
+          const updatedOTP = await userService.updateOTP(req.body);
+          console.log(req.body);
+          console.log(updatedOTP);
 
           if (!updatedOTP) {
             return res.status(500).json({
@@ -143,7 +152,7 @@ const userController = {
 
           // Update contact verification table column emailStatus to 1
           const updatedEmailStatus =
-            await userService.updateContactVerificationEmailStatus(userId);
+            await userService.updateContactVerificationEmailStatus(req.body);
 
           if (!updatedEmailStatus) {
             return res.status(500).json({
@@ -187,7 +196,7 @@ const userController = {
       }
 
       // Check if the email exists
-      const isUserExist = await userService.getUserByEmail(userEmail);
+      const isUserExist = await userService.getUserByEmail(req.body);
 
       // If there is no account related to this email
       if (!isUserExist.length) {
@@ -253,14 +262,18 @@ const userController = {
       }
 
       // Password encryption
-      const salt = bcrypt.genSaltSync(10); // Specify the number of rounds
+      let salt = bcrypt.genSaltSync(10); // Specify the number of rounds
       req.body.userPassword = bcrypt.hashSync(userPassword, salt);
-      const passwordInserted = await userService.insertUserPassword(req.body);
+      //userPassword = req.body.userPassword;
+      const passwordInserted = await userService.insertIntoUsersPassword(
+        userId,
+        userPassword
+      );
 
       if (!passwordInserted) {
-        return res.status(200).json({
+        return res.status(404).json({
           success: false,
-          message: "Error during password changing",
+          message: "password not insert into userPassword",
         });
       }
       return res.status(200).json({
@@ -279,8 +292,9 @@ const userController = {
   // Change password
   changePassword: async (req, res) => {
     try {
+      req.body.userId = req.userId;
       const { userId, oldPassword, userPassword } = req.body;
-
+      console.log(userId);
       // Validate the request values
       if (!userId || !userPassword || !oldPassword) {
         return res.json({
@@ -290,7 +304,8 @@ const userController = {
       }
 
       // Check if the old password is correct
-      const userData = await userService.getUserPasswordByUserId(userId);
+      const userData = await userService.getUserPasswordByUserId(req.body);
+      console.log(userData);
       if (!userData) {
         return res.status(500).json({
           success: false,
@@ -300,6 +315,7 @@ const userController = {
 
       // Compare the old password with the last one from the table
       const dbPassword = userData[userData.length - 1].userPassword;
+      console.log(dbPassword);
       const isMatch = bcrypt.compareSync(oldPassword, dbPassword);
       if (!isMatch) {
         return res.status(500).json({
@@ -308,33 +324,37 @@ const userController = {
         });
       }
 
-      for (let i = 0; i < userData.length; i++) {
-        let dbPassword = userData[i].userPassword;
-        // Compare
-        const isMatch = bcrypt.compareSync(userPassword, dbPassword);
-        if (isMatch) {
-          return res.status(500).json({
-            success: false,
-            message: "This password is already used. Please use another",
-          });
-        }
-      }
+      // for (let i = 0; i < userData.length; i++) {
+      //   let dbPassword = userData[i].userPassword;
+      //   // Compare
+      //   const isMatch = bcrypt.compareSync(userPassword, dbPassword);
+      //   if (isMatch) {
+      //     return res.status(500).json({
+      //       success: false,
+      //       message: "This password is already used. Please use another",
+      //     });
+      //   }
+      // }
 
       // Password encryption
       const salt = bcrypt.genSaltSync(10); // Specify the number of rounds
       req.body.userPassword = bcrypt.hashSync(userPassword, salt);
 
-      const updateUserPassword = await userService.updateUserPassword(req.body);
-      if (!updateUserPassword) {
+      const insertUserPassword = await userService.insertIntoUsersPassword(
+        userId,
+        userPassword
+      );
+
+      if (!insertUserPassword) {
         return res.status(500).json({
           success: false,
-          message: "Database error during password changing",
+          message: " error during password insertion",
         });
       }
 
       return res.status(200).json({
         success: true,
-        message: "Password changed successfully",
+        message: "Password inserted successfully",
       });
     } catch (error) {
       console.error("Error in changePassword:", error);
