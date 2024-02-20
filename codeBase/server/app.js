@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import cors from "cors";
-import { app, io, mainServer } from "./socket/socket.js";
+import { app, mainServer } from "./socket/socket.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,7 +15,7 @@ const host = process.env.SERVER_HOST;
 const port = process.env.SERVER_PORT;
 
 const corsOptions = {
-  origin: [process.env.CLIENT, "*"],
+  origin: true,
   credentials: true,
 };
 //app.use(cors(corsOptions));
