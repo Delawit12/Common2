@@ -1,4 +1,5 @@
 import express from "express";
+// import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 dotenv.config();
 import path from "path";
@@ -14,11 +15,12 @@ const host = process.env.SERVER_HOST;
 const port = process.env.SERVER_PORT;
 
 const corsOptions = {
-  origin: "*",
+  origin: [process.env.CLIENT, "*"],
   credentials: true,
 };
+//app.use(cors(corsOptions));
 
-app.use(cors(corsOptions));
+// app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
