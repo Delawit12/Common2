@@ -14,7 +14,7 @@ const host = process.env.SERVER_HOST;
 const port = process.env.SERVER_PORT;
 
 const corsOptions = {
-  origin: "*",
+  origin: true,
   credentials: true,
 };
 
