@@ -140,7 +140,7 @@ const messageController={
   
   getRoleName: async (req, res) => {
     try {
-      const isRoleName = await messageService.getRoleName(req.body);
+      const isRoleName = await messageService.getRoleName();
       if (!isRoleName.length) {
         return res.status(400).json({
           success: false,
@@ -159,6 +159,16 @@ const messageController={
       });
     }
   },
+
+//   getRoleName : (req, res)=> {
+//   try {
+//     const roles = await rolesService.getRoles();
+//     res.json(roles);
+//   } catch (error) {
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// }
+
 };
 
 export default messageController;

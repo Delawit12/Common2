@@ -80,47 +80,42 @@ const dashboardService = {
   }
 },
 
-  // getUsersRegisteredOnSpecificDay: async (data) => {
-  //   try {
 
-  //     const rows = await query(dashboardQuery.getUsersRegisteredOnSpecificDay,[data.date] );
-  //     return rows;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // },
 
-  // getUsersRegisteredInSpecificMonth: async (year, month) => {
-  //   try {
-  //     const query = `
-  //       SELECT COUNT(*) AS userCount
-  //       FROM users
-  //       WHERE EXTRACT(YEAR FROM createdDate) = $1
-  //         AND EXTRACT(MONTH FROM createdDate) = $2;
-  //     `;
-  //     const result = await db.query(query, [year, month]);
-  //     const userCount = result.rows[0].userCount;
-  //     return userCount;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // },
+getUsersRegisteredOnSpecificDay:async (data) => {
+  try {
+    const rows = await query(dashboardQuery.getUsersRegisteredOnSpecificDay[data.date])
+    return rows
+  } catch (error) {
+    return null
+  }
+},
+getTotalUserCountByDate: async () => {
+    try {
+      return await dashboardQuery.getTotalUserCountByDate();
+    } catch (error) {
+      throw error;
+    }
+},
 
-  // getUsersRegisteredInSpecificYear: async (year) => {
-  //   try {
-  //     const query = `
-  //       SELECT COUNT(*) AS userCount
-  //       FROM users
-  //       WHERE EXTRACT(YEAR FROM createdDate) = $1;
-  //     `;
-  //     const result = await db.query(query, [year]);
-  //     const userCount = result.rows[0].userCount;
-  //     return userCount;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // },
 
+  getUsersRegisteredInSpecificMonth: async (data) => {
+    try {
+      
+      return await dashboardQuery.getUsersRegisteredInSpecificMonth(data.year, data.month);
+     return rows
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getUsersRegisteredInSpecificYear: async (data) => {
+    try {
+      return await dashboardQuery.getUsersRegisteredInSpecificYear(data.year);
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default dashboardService;

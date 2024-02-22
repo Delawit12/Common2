@@ -64,7 +64,7 @@ const messageService = {
 
 getRoleName: async(data)=>{
   try {
-    const rows = await query(messageQuery.getRoleName, [data.userRoleId]);
+    const rows = await query(messageQuery.getRoleName);
     return rows;
   } catch (e) {
     console.log(e);

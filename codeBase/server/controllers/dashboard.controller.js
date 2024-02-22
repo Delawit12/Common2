@@ -1,6 +1,5 @@
 import dashboardService from "../services/dashboard.service.js";
-import userUtility from "../utilities/user.utility.js";
-import bcrypt from "bcrypt";
+import { validateDate } from "../utils/dateUtils.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -159,101 +158,98 @@ const dasahboardController = {
     }
   },
 
-  // getUsersRegisteredOnSpecificDay: async (req, res) => {
-  //   try {
-  //     const { date } = req.params;
+  getUsersRegisteredOnSpecificDay: async (req, res) => {
+    try {
+      const { date } = req.params;
 
-  //     if (!validateDate(date)) {
-  //       return res.status(400).json({
-  //         success: false,
-  //         message: "Invalid date format. Please provide a valid date in YYYY-MM-DD format.",
-  //       });
-  //     }
+      if (!validateDate(date)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid date format. Please provide a valid date in YYYY-MM-DD format.",
+        });
+      }
 
-  //     const userCount = await userService.getUsersRegisteredOnSpecificDay(date);
-  //     const totalUserCount = await userService.getTotalUserCount();
+      const userCount = await dashboardService.getUsersRegisteredOnSpecificDay(date);
+      const totalUserCount = await dashboardService.getTotalUserCountByDate();
 
-  //     const percentage = (userCount / totalUserCount) * 100;
+      const percentage = (userCount / totalUserCount) * 100;
 
-  //     return res.status(200).json({
-  //       success: true,
-  //       data: {
-  //         userCount,
-  //         percentage,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     return res.status(500).json({
-  //       success: false,
-  //       message: "Server error",
-  //     });
-  //   }
-  // },
+      return res.status(200).json({
+        success: true,
+        data: {
+          userCount,
+          percentage,
+        },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Server error",
+      });
+    }
+  },
 
-  // getUsersRegisteredInSpecificMonth: async (req, res) => {
-  //   try {
-  //     const { year, month } = req.params;
+  getUsersRegisteredInSpecificMonth: async (req, res) => {
+    try {
+      const { year, month } = req.params;
 
-  //     if (!validateDate(`${year}-${month}-01`)) {
-  //       return res.status(400).json({
-  //         success: false,
-  //         message: "Invalid date format. Please provide a valid year and month in YYYY-MM format.",
-  //       });
-  //     }
+      if (!validateDate(`${year}-${month}-01`)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid date format. Please provide a valid year and month in YYYY-MM format.",
+        });
+      }
 
-  //     const userCount = await userService.getUsersRegisteredInSpecificMonth(year, month);
-  //     const totalUserCount = await userService.getTotalUserCount();
+      const userCount = await dashboardService.getUsersRegisteredInSpecificMonth(year, month);
+      const totalUserCount = await dashboardService.getTotalUserCount();
 
-  //     const percentage = (userCount / totalUserCount) * 100;
+      const percentage = (userCount / totalUserCount) * 100;
 
-  //     return res.status(200).json({
-  //       success: true,
-  //       data: {
-  //         userCount,
-  //         percentage,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     return res.status(500).json({
-  //       success: false,
-  //       message: "Server error",
-  //     });
-  //   }
-  // },
+      return res.status(200).json({
+        success: true,
+        data: {
+          userCount,
+          percentage,
+        },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Server error",
+      });
+    }
+  },
 
-  // getUsersRegisteredInSpecificYear: async (req, res) => {
-  //   try {
-  //     const { year } = req.params;
+  getUsersRegisteredInSpecificYear: async (req, res) => {
+    try {
+      const { year } = req.params;
 
-  //     if (!validateDate(`${year}-01-01`)) {
-  //       return res.status(400).json({
-  //         success: false,
-  //         message: "Invalid date format. Please provide a valid year in YYYY format.",
-  //       });
-  //     }
+      if (!validateDate(`${year}-01-01`)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid date format. Please provide a valid year in YYYY format.",
+        });
+      }
 
-  //     const userCount = await userService.getUsersRegisteredInSpecificYear(year);
-  //     const totalUserCount = await userService.getTotalUserCount();
+      const userCount = await dashboardService.getUsersRegisteredInSpecificYear(year);
+      const totalUserCount = await dashboardService.getTotalUserCount();
 
-  //     const percentage = (userCount / totalUserCount) * 100;
+      const percentage = (userCount / totalUserCount) * 100;
 
-  //     return res.status(200).json({
-  //       success: true,
-  //       data: {
-  //         userCount,
-  //         percentage,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     return res.status(500).json({
-  //       success: false,
-  //       message: "Server error",
-  //     });
-  //   }
-
-
-    
-  // },
+      return res.status(200).json({
+        success: true,
+        data: {
+          userCount,
+          percentage,
+        },
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Server error",
+      });
+    }
+  },
 }
 
 

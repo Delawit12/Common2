@@ -9,7 +9,7 @@ import { auth, isAdmin } from "../auth/auth.js";
 messageRoutes.post('/api/message', auth,messageController.sendMessage);
 messageRoutes.get('/api/conversations',auth, messageController.getConversation); 
 messageRoutes.get('/api/messages/:id',auth, messageController.getMessage);
-messageRoutes.get('/api/role', messageController.getRoleName); 
+// messageRoutes.get('/api/role', messageController.getRoleName); 
 
 
 

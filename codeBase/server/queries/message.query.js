@@ -66,7 +66,8 @@ LEFT JOIN
     messageContent mc ON m.messageId = mc.messageId
 WHERE
     m.conversationId = ?;`,
-    getcompanyRoleName: `SELECT companyRoleName FROM companyRoles WHERE companyRoleId = ?;`
+    getcompanyRoleName: `SELECT companyRoleName FROM companyRoles WHERE companyRoleId = ?;`,
+    getRoleName: `SELECT * FROM companyRoles`
 }
 export default messageQuery;
 

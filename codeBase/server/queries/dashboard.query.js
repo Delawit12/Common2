@@ -40,9 +40,11 @@ getEmailVerificationStats:
   (SUM(CASE WHEN emailStatus = true THEN 1 ELSE 0 END) / COUNT(*)) * 100 AS verifiedEmailPercentage,
   (SUM(CASE WHEN emailStatus = false THEN 1 ELSE 0 END) / COUNT(*)) * 100 AS nonVerifiedEmailPercentage
 FROM contactVerification;`,
+getTotalUserCountByDate: `SELECT createdDate, COUNT(*) AS user_count FROM users GROUP BY createdDate;`,
+getUsersRegisteredOnSpecificDay:`SELECT * FROM users WHERE  DATE(createdDate) = ?`,
 getUsersRegisteredInSpecificMonth: `SELECT * FROM users WHERE YEAR(createdDate) = ? AND MONTH(createdDate) = ?`,
 getUsersRegisteredInSpecificYear: `SELECT COUNT(*) AS userCount FROM users WHERE YEAR(createdDate) = ?`,
-userCount: `SELECT COUNT(*) AS userCount FROM users WHERE DATE(createdDate) = ?;`,
+userCountByDate: `SELECT COUNT(*) AS userCount FROM users WHERE DATE(createdDate) = ?;`,
 insertIntoRole :  `INSERT INTO usersRole (userId, companyRoleId) VALUES (?, ?);`,
 deactivateUser:  `UPDATE users SET activeStatus = 0 WHERE userId = ?`,
 
