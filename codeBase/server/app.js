@@ -35,6 +35,6 @@ app.get("/", (req, res) => {
   res.send("response");
 });
 
-mainServer.listen(port, host, () => {
+app.listen(port, host, () => {
   console.log(`Server is running at http://${host}:${port}`);
 });
