@@ -1,12 +1,18 @@
-// import express from "express";
-// import dashboardController from "../controllers/dashboard.controller.js";
-// import { auth, isAdmin } from "../auth/auth.js";
-// const userRoutes = express.Router();
+import express from "express";
+import dashboardController from "../controllers/dashboard.controller.js";
+import { auth, isAdmin } from "../auth/auth.js";
+const dasahboardRoutes = express.Router();
 
-// userRoutes.post("/api/user/deactivate", dashboardController.deactivateUser);
-// userRoutes.post("/api/user/delete/:id", dashboardController.deleteUser);
-// userRoutes.post("/api/user/assignRole", dashboardController.assignRole);
-// userRoutes.get("/api/user/gender", dashboardController.newPassword);
-// // userRoutes.post("/api/user/change", [auth], userController.changePassword);
+dasahboardRoutes.put("/api/user/deactivate/:id", dashboardController.deactivateUser);  
+dasahboardRoutes.get("/api/user/delete/:id", dashboardController.deleteUser);
+// dasahboardRoutes.post("/api/user/assignRole", dashboardController.insertIntoRole);
+dasahboardRoutes.get("/api/user/gender", dashboardController.getUserGenderPercentage);
+dasahboardRoutes.get("/api/user/status",dashboardController.getUserStatusPercentage);
+dasahboardRoutes.get("/api/user/role", dashboardController.getUsersCountByRole);
+dasahboardRoutes.get("/api/user/emailstat", dashboardController.getEmailVerificationStats);
 
-// export default userRoutes;
+
+
+
+
+export default dasahboardRoutes;
